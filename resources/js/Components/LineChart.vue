@@ -1,0 +1,67 @@
+<script setup>
+import { ref, onMounted } from 'vue';
+import { Chart, LineController, LineElement, PointElement, LinearScale, Title, Tooltip, CategoryScale } from 'chart.js';
+
+const {labels} = defineProps({
+    labels: {
+        type: Array,
+        required: true,
+    },
+});
+// Register required components
+Chart.register(LineController, LineElement, PointElement, LinearScale, Title, Tooltip, CategoryScale);
+
+const chartRef = ref(null);
+let chartInstance = null;
+
+const chartData = {
+    labels: labels,
+    datasets: [
+        {
+            label: 'Sales Data',
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            data: [30, 70, 50, 90, 100, 40],
+            fill: true,
+        },
+    ],
+};
+
+const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+        title: {
+            display: true,
+            text: 'Bitcoin Price Chart',
+        },
+        tooltip: {
+            enabled: true,
+        },
+    },
+    scales: {
+        x: {
+            beginAtZero: true,
+        },
+        y: {
+            beginAtZero: true,
+        },
+    },
+};
+
+onMounted(() => {
+    if (chartRef.value) {
+        chartInstance = new Chart(chartRef.value, {
+            type: 'line',
+            data: chartData,
+            options: chartOptions,
+        });
+    }
+});
+</script>
+
+<template>
+    <div class="chart-container" style="position: relative; height: 400px;">
+        <canvas ref="chartRef"></canvas>
+    </div>
+</template>

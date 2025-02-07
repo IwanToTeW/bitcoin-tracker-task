@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'bitfinex' => [
+        'base_url' => env('BITFINEX_BASE_URL', 'https://api-pub.bitfinex.com/v2/'),
+    ]
+
 ];
