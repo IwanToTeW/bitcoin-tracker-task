@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 
@@ -21,5 +22,17 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Vite::prefetch(concurrency: 3);
+        $this->createBitFinexClientMacro();
+    }
+
+    private function createBitFinexClientMacro(): void
+    {
+        // Macro to create a BitFinex client
+        Http::macro('bitFinex', function () {
+            return Http::withHeaders([
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
+            ])->baseUrl(config('services.bitfinex.base_url'));
+        });
     }
 }

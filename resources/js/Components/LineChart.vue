@@ -2,8 +2,12 @@
 import { ref, onMounted } from 'vue';
 import { Chart, LineController, LineElement, PointElement, LinearScale, Title, Tooltip, CategoryScale } from 'chart.js';
 
-const {labels} = defineProps({
+const {labels, data} = defineProps({
     labels: {
+        type: Array,
+        required: true,
+    },
+    data: {
         type: Array,
         required: true,
     },
@@ -21,7 +25,7 @@ const chartData = {
             label: 'Sales Data',
             backgroundColor: 'rgba(75, 192, 192, 0.2)',
             borderColor: 'rgba(75, 192, 192, 1)',
-            data: [30, 70, 50, 90, 100, 40],
+            data: data,
             fill: true,
         },
     ],
@@ -44,7 +48,7 @@ const chartOptions = {
             beginAtZero: true,
         },
         y: {
-            beginAtZero: true,
+            beginAtZero: false,
         },
     },
 };

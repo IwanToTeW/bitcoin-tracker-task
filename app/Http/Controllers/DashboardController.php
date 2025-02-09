@@ -15,16 +15,18 @@ class DashboardController extends Controller
 {
     public function index(DashboardRequest $request): Response
     {
+        $data = (new GetHistoryData())->execute($request->validated());
+
         return Inertia::render('Dashboard',
             [
-                'data' => (new GetHistoryData())->execute($request->validated()),
+                'labels' => $data->pluck('date'),
+                'data' => $data->pluck('mid'),
                 'queryParams' => [
                   'pair' => $request->input('pair') ?? 'tBTCUSD',
                   'interval' => $request->input('interval') ?? 'day',
                 ],
                 'pairs' => EnumResource::collection(CurrencyPair::cases()),
                 'intervals' =>  EnumResource::collection(ViewInterval::cases()),
-                'labels' => (new GetDayViewOptions)->execute(now()->format('Y-m-d H:00:00')),
             ]);
     }
 }

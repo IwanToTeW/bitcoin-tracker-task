@@ -80,7 +80,7 @@ onBeforeMount(() => {
                             </div>
                         </div>
 
-                        <LineChart :labels="labels"/>
+                        <LineChart :labels="labels" :data="data"/>
                     </div>
                 </div>
             </div>
