@@ -17,20 +17,14 @@ class GetHistoryData
         $isDayView = $interval === 'day';
 
         $start = Carbon::parse($params['date'])->startOfDay() ?? Carbon::now()->startOfDay();
-
         if($start->isFuture()) {
             throw(new \Exception('Date cannot be in the future'));
         }
 
         $end = $isDayView ? $start->copy()->endOfDay() : $start->copy()->endOfWeek();
 
-        $startTimestamp = $start->timestamp * 1000;
-        $endTimestamp = $end->timestamp * 1000;
-        $pair = $params['pair'] ?? 'tBTCUSD';
-        $limit = ($pair === 'day') ? 24 : 168;
-
         $response = Http::bitFinex()
-            ->get('tickers/hist?symbols='.$pair.'&limit='.$limit.'&start='.$startTimestamp.'&end='.$endTimestamp);
+            ->get($this->getEndpoint($isDayView, $params['pair'] ?? 'tBTCUSD', $start->timestamp, $end->timestamp));
         $midPriceAction = new GetMidPrice();
 
         return collect($response->json())->map(function ($item) use ($midPriceAction) {
@@ -40,5 +34,17 @@ class GetHistoryData
                 'mid' => $midPriceAction->execute($item[1], $item[3]),
             ];
         })->reverse();
+    }
+
+    private function getEndpoint(bool $isDayView, string $pair, int $startTimestamp, int $endTimestamp)
+    {
+        $startTimestamp = $startTimestamp * 1000;
+        $endTimestamp = $endTimestamp * 1000;
+
+        $limit = ($pair === 'day') ? 24 : 168;
+        if($isDayView) {
+            return 'tickers/hist?symbols='.$pair.'&limit='.$limit.'&start='.$startTimestamp .'&end='.$endTimestamp;
+        }
+        return 'tickers/hist?symbols='.$pair.'&limit='.$limit.'&end='.$endTimestamp;
     }
 }
