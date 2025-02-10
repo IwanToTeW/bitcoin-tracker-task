@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Enums\CurrencyPair;
 use App\Enums\ViewInterval;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
 
 class DashboardRequest extends FormRequest
@@ -32,5 +33,16 @@ class DashboardRequest extends FormRequest
             'interval' => ['nullable', 'string', Rule::in($viewIntervalValues)],
             'date' => ['nullable', 'date', 'before_or_equal:today'],
         ];
+    }
+
+    public function prepareForValidation(): void
+    {
+        if (!empty($this->date) && Carbon::parse($this->date)->isFuture()) {
+
+            $this->merge([
+                'date' => Carbon::now()->format('Y-m-d')
+            ]);
+        }
+
     }
 }

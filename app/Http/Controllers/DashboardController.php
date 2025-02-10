@@ -22,8 +22,9 @@ class DashboardController extends Controller
                 'labels' => $data['labels'],
                 'data' => $data['data'],
                 'queryParams' => [
-                  'pair' => $request->input('pair') ?? 'tBTCUSD',
-                  'interval' => $request->input('interval') ?? 'day',
+                    'pair' => $request->input('pair') ?? 'tBTCUSD',
+                    'interval' => $request->input('interval') ?? 'day',
+                    'date' => $request->input('date') ?? now()->format('Y-m-d'),
                 ],
                 'pairs' => EnumResource::collection(CurrencyPair::cases()),
                 'intervals' =>  EnumResource::collection(ViewInterval::cases()),

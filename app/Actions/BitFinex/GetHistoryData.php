@@ -27,7 +27,7 @@ class GetHistoryData
         $response = Http::bitFinex()
             ->get($this->getEndpoint($isDayView, $params['pair'] ?? 'tBTCUSD', $start->timestamp, $end->timestamp));
 
-        return $isDayView ? $this->mapDailyData($response) : $this->mapWeeklyData($response);
+        return $isDayView ? $this->mapDailyDataForChart($response) : $this->mapWeeklyDataForChart($response);
     }
 
     private function getEndpoint(bool $isDayView, string $pair, int $startTimestamp, int $endTimestamp): string
@@ -55,7 +55,7 @@ class GetHistoryData
             ];
         })->reverse();
     }
-    private function mapDailyData($response): array
+    private function mapDailyDataForChart($response): array
     {
         $mapped = $this->parseDailyData($response);
 
@@ -65,7 +65,7 @@ class GetHistoryData
         ];
     }
 
-    private function mapWeeklyData($response): array
+    private function mapWeeklyDataForChart($response): array
     {
         $mapped = $this->parseDailyData($response)->groupBy('date')->mapWithKeys(function ($dayCollection, $date) {
             $averageMID = $dayCollection->avg('mid'); // Calculate the average MID for the day
