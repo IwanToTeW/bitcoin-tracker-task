@@ -5,7 +5,7 @@ import Button from "primevue/button"
 import SelectButton from 'primevue/selectbutton';
 import {ref, defineProps, onBeforeMount, onMounted, computed} from "vue";
 import LineChart from "@/Components/LineChart.vue";
-import { format, addDays, subDays, addWeeks, subWeeks, startOfWeek } from "date-fns";
+import { format, addDays, subDays, addWeeks, subWeeks, startOfWeek, isAfter } from "date-fns";
 
 const {data, queryParams, pairs, intervals} = defineProps({
     'data': {
@@ -32,7 +32,11 @@ const {data, queryParams, pairs, intervals} = defineProps({
 
 const currencyPair = ref('');
 const view = ref('');
+const today = startOfWeek(new Date(), { weekStartsOn: 1 });
+
 const isDayView = computed(() => view.value?.value === 'day');
+const isNextDisabled = computed(() => isAfter(currentDate.value, today));
+
 const currentDate = ref( isDayView ? new Date() : startOfWeek(new Date(), { weekStartsOn: 1 }));
 
 onBeforeMount(() => {
@@ -104,7 +108,7 @@ const nextWeek = () => {
                                     <span class="pi pi-arrow-left"></span>
                                     Previous
                                 </Button>
-                                <Button class="w-32" @click="isDayView ? nextDay() : nextWeek()">
+                                <Button :disabled="isNextDisabled" class="w-32" @click="isDayView ? nextDay() : nextWeek()">
                                     Next
                                     <span class="pi pi-arrow-right"></span>
                                 </Button>

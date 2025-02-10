@@ -30,6 +30,7 @@ class DashboardRequest extends FormRequest
         return [
             'pair' => ['nullable', 'string', Rule::in($currencyPairValues)],
             'interval' => ['nullable', 'string', Rule::in($viewIntervalValues)],
+            'date' => ['nullable', 'date', 'before_or_equal:today'],
         ];
     }
 }
