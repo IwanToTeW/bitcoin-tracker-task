@@ -19,8 +19,8 @@ class DashboardController extends Controller
 
         return Inertia::render('Dashboard',
             [
-                'labels' => $data->pluck('date'),
-                'data' => $data->pluck('mid'),
+                'labels' => $data['labels'],
+                'data' => $data['data'],
                 'queryParams' => [
                   'pair' => $request->input('pair') ?? 'tBTCUSD',
                   'interval' => $request->input('interval') ?? 'day',
