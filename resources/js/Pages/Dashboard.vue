@@ -1,12 +1,11 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import {Head} from '@inertiajs/vue3';
+import {Head, router} from '@inertiajs/vue3';
 import Button from "primevue/button"
 import SelectButton from 'primevue/selectbutton';
-import {ref, defineProps, onBeforeMount, onMounted} from "vue";
-import { Chart, LineController, LineElement, PointElement, LinearScale, Title, Tooltip, CategoryScale } from 'chart.js';
+import {ref, defineProps, onBeforeMount, onMounted, computed} from "vue";
 import LineChart from "@/Components/LineChart.vue";
-Chart.register(LineController, LineElement, PointElement, LinearScale, Title, Tooltip, CategoryScale);
+import { format, addDays, subDays, addWeeks, subWeeks, startOfWeek } from "date-fns";
 
 const {data, queryParams, pairs, intervals} = defineProps({
     'data': {
@@ -33,14 +32,52 @@ const {data, queryParams, pairs, intervals} = defineProps({
 
 const currencyPair = ref('');
 const view = ref('');
-const chartRef = ref(null);
+const isDayView = computed(() => view.value?.value === 'day');
+const currentDate = ref( isDayView ? new Date() : startOfWeek(new Date(), { weekStartsOn: 1 }));
 
 onBeforeMount(() => {
-    console.log('before mount')
-    currencyPair.value = queryParams.pair;
-    view.value = queryParams.interval;
+    currencyPair.value = pairs.data.find(pair => pair.value === queryParams.pair) ?? pairs.data[0];
+    view.value = intervals.data.find(interval => interval.value === queryParams.interval) ?? intervals.data[0];
 })
 
+const onViewChange = () => {
+    refreshData();
+}
+
+const onPairChange = () => {
+    refreshData();
+}
+
+const refreshData = () => {
+    router.visit(route('dashboard', {
+        pair: currencyPair.value.value,
+        interval: view.value.value,
+        date: format(currentDate.value, 'yyyy-MM-dd')
+    }), {
+        preserveState: true,
+        preserveScroll: true,
+    });
+}
+
+const previousDay = () => {
+    currentDate.value = subDays(currentDate.value, 1);
+    refreshData();
+};
+
+const nextDay = () => {
+    currentDate.value = addDays(currentDate.value, 1);
+    refreshData();
+};
+
+const previousWeek = () => {
+    currentDate.value = startOfWeek(subWeeks(currentDate.value, 1), { weekStartsOn: 1 });
+    refreshData();
+};
+
+const nextWeek = () => {
+    currentDate.value = startOfWeek(addWeeks(currentDate.value, 1), { weekStartsOn: 1 });
+    refreshData();
+};
 
 </script>
 
@@ -63,24 +100,29 @@ onBeforeMount(() => {
                     <div class="p-6 text-gray-900">
                         <div class="flex justify-between">
                             <div class="flex gap-x-2">
-                                <Button class="w-32">
+                                <Button class="w-32" @click="isDayView ? previousDay() : previousWeek()">
                                     <span class="pi pi-arrow-left"></span>
                                     Previous
                                 </Button>
-                                <Button class="w-32">
+                                <Button class="w-32" @click="isDayView ? nextDay() : nextWeek()">
                                     Next
                                     <span class="pi pi-arrow-right"></span>
                                 </Button>
+
+                                <div v-text="format(currentDate, 'dd/MM/yyyy')" class="text-gray-700 ml-4 mt-2">
+                                </div>
                             </div>
                             <div class="flex gap-x-2">
                                 <SelectButton v-model="currencyPair" optionLabel="label" dataKey="value"
-                                              :options="pairs.data" :default-value="pairs.data[0]"/>
+                                              @value-change="onPairChange"
+                                              :options="pairs.data"/>
                                 <SelectButton v-model="view" optionLabel="label" dataKey="value"
-                                              :options="intervals.data" :default-value="intervals.data[0]"/>
+                                              @value-change="onViewChange"
+                                              :options="intervals.data"/>
                             </div>
                         </div>
 
-                        <LineChart :labels="labels" :data="data"/>
+                        <LineChart class="mt-5"  :key="data" :labels="labels" :data="data"/>
                     </div>
                 </div>
             </div>
