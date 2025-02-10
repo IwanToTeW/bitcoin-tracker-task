@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Enums\CurrencyPair;
 use App\Enums\ViewInterval;
+use Carbon\Exceptions\InvalidFormatException;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\Rule;
@@ -37,12 +38,20 @@ class DashboardRequest extends FormRequest
 
     public function prepareForValidation(): void
     {
-        if (!empty($this->date) && Carbon::parse($this->date)->isFuture()) {
-
-            $this->merge([
-                'date' => Carbon::now()->format('Y-m-d')
-            ]);
+        if (empty($this->date)) {
+            return;
         }
 
+        try {
+            $date = Carbon::parse($this->date);
+
+            if ($date->isFuture()) {
+                $this->merge([
+                    'date' => Carbon::now()->format('Y-m-d')
+                ]);
+            }
+        } catch (InvalidFormatException $e) {
+            return;
+        }
     }
 }

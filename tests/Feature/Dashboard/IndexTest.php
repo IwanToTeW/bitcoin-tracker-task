@@ -15,7 +15,7 @@ it('can see chart for a day', function (string $pair) {
         ->assertInertia(function (Assert $page) {
             $page->component('Dashboard')
                 ->has('labels')
-                ->has('data', 23)
+                ->has('data', 24)
                 ->has('queryParams')
                 ->has('pairs.data', collect(CurrencyPair::cases())->count())
                 ->has('intervals.data', collect(ViewInterval::cases())->count());
@@ -28,7 +28,7 @@ it('can see chart for a week', function (string $pair) {
         ->assertInertia(function (Assert $page) {
             $page->component('Dashboard')
                 ->has('labels')
-                ->has('data', 8)
+                ->has('data', 7)
                 ->has('queryParams')
                 ->has('pairs.data', collect(CurrencyPair::cases())->count())
                 ->has('intervals.data', collect(ViewInterval::cases())->count());
@@ -41,7 +41,7 @@ it('returns today if future date is provided for interval: ', function (string $
         ->assertInertia(function (Assert $page) use ($interval) {
             $page->component('Dashboard')
                 ->has('labels')
-                ->has('data', $interval === 'day' ? 23 : 8)
+                ->has('data', $interval === 'day' ? 24 : 7)
                 ->has('queryParams', function (Assert $page) use($interval) {
                     $page->where('interval', $interval)
                         ->where('date', Carbon::now()->format('Y-m-d'))
@@ -58,7 +58,7 @@ it('returns daily btc/usd chart as a default', function () {
         ->assertInertia(function (Assert $page) {
             $page->component('Dashboard')
                 ->has('labels')
-                ->has('data', 23)
+                ->has('data', 24)
                 ->has('queryParams', function (Assert $page) {
                     $page->where('interval', ViewInterval::Day->value)
                         ->where('date', Carbon::now()->format('Y-m-d'))
@@ -68,3 +68,21 @@ it('returns daily btc/usd chart as a default', function () {
                 ->has('intervals.data', collect(ViewInterval::cases())->count());
         });
 });
+
+it('throws validation errors when invalid params are provided', function ($data) {
+    $this->get($data['url'])->assertSessionHasErrors($data['errors']);
+})->with([
+    'invalid interval' => fn () => [
+        'url' => '/dashboard?interval=invalid',
+        'errors' => ['interval']
+    ],
+    'invalid pair' => fn () => [
+        'url' => '/dashboard?pair=invalid',
+        'errors' => ['pair']
+    ],
+    'invalid date' => fn () => [
+        'url' => '/dashboard?date=invalid',
+        'errors' => ['date']
+    ],
+]);
+
