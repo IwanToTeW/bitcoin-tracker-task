@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Actions\BitFinex\GetDayViewOptions;
 use App\Actions\BitFinex\GetHistoryData;
 use App\Enums\CurrencyPair;
 use App\Enums\ViewInterval;
