@@ -4,6 +4,8 @@ namespace App\Http\Requests;
 
 use App\Enums\CurrencyPair;
 use App\Models\User;
+use App\Rules\IsPercentageRequired;
+use App\Rules\IsPeriodRequired;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -28,6 +30,8 @@ class StoreSubscriptionRequest extends FormRequest
                 'max:255',
             ],
             'price' => ['required', 'numeric', 'min:0'],
+            'percentage' => [ 'required_if_declined:period', 'min:1', 'numeric'],
+            'period' => [new IsPeriodRequired, 'numeric', 'min:0'],
         ];
     }
 }

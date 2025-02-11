@@ -28,4 +28,13 @@ enum TimePeriod: int
             self::NotSpecified => 'Not Specified',
         };
     }
+
+    public static function periodsRequirePercentage(): array
+    {
+        return [
+            self::Hours1->value,
+            self::Hours6->value,
+            self::Hours24->value
+        ];
+    }
 }

@@ -45,7 +45,7 @@ const form = ref({
     email: '',
     price: '',
     percentage: '',
-    period: '',
+    period: 0,
     errors: {},
 });
 const today = startOfWeek(new Date(), {weekStartsOn: 1});
@@ -193,7 +193,7 @@ const subscribe = () => {
                             <div class="flex items-center gap-4 mb-8">
                                 <label for="period" class="font-semibold w-24">Period</label>
                                 <Select v-model="form.period" class="ml-5 w-full" :options="timePeriods.data" optionLabel="label"
-                                        dataKey="value"></Select>
+                                        option-value="value"></Select>
                             </div>
                             <InputError v-for="error in form.errors?.period" :message="error"></InputError>
 
