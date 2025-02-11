@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('price_logs', function (Blueprint $table) {
+        Schema::create('subscriptions', function (Blueprint $table) {
             $table->id();
             $table->string('pair');
-            $table->date('date');
             $table->decimal('price', 16, 8);
+            $table->string('email');
             $table->timestamps();
         });
     }
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('price_logs');
+        Schema::dropIfExists('subscriptions');
     }
 };

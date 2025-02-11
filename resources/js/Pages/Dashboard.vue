@@ -3,11 +3,15 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import {Head, router} from '@inertiajs/vue3';
 import Button from "primevue/button"
 import SelectButton from 'primevue/selectbutton';
+import Select from 'primevue/select';
+import InputText from 'primevue/inputtext';
+import InputNumber from 'primevue/inputnumber';
 import {ref, defineProps, onBeforeMount, onMounted, computed} from "vue";
 import LineChart from "@/Components/LineChart.vue";
 import {format, addDays, subDays, addWeeks, subWeeks, startOfWeek, isAfter, isToday} from "date-fns";
+import InputError from "@/Components/InputError.vue";
 
-const {data, queryParams, pairs, intervals} = defineProps({
+const {data, queryParams, pairs, intervals, timePeriods} = defineProps({
     'data': {
         type: Array,
         required: true,
@@ -24,6 +28,10 @@ const {data, queryParams, pairs, intervals} = defineProps({
         type: Object,
         required: true,
     },
+    'timePeriods': {
+        type: Object,
+        required: true,
+    },
     'labels': {
         type: Array,
         required: true,
@@ -31,13 +39,21 @@ const {data, queryParams, pairs, intervals} = defineProps({
 })
 
 const currencyPair = ref('');
+const showSubscribeModal = ref(false);
 const view = ref('');
-const today = startOfWeek(new Date(), { weekStartsOn: 1 });
+const form = ref({
+    email: '',
+    price: '',
+    percentage: '',
+    period: '',
+    errors: {},
+});
+const today = startOfWeek(new Date(), {weekStartsOn: 1});
 
 const isDayView = computed(() => view.value?.value === 'day');
 const isNextDisabled = computed(() => isAfter(currentDate.value, today) || isToday(currentDate.value));
 
-const currentDate = ref( isDayView ? new Date() : startOfWeek(new Date(), { weekStartsOn: 1 }));
+const currentDate = ref(isDayView ? new Date() : startOfWeek(new Date(), {weekStartsOn: 1}));
 
 onBeforeMount(() => {
     currencyPair.value = pairs.data.find(pair => pair.value === queryParams.pair) ?? pairs.data[0];
@@ -74,15 +90,29 @@ const nextDay = () => {
 };
 
 const previousWeek = () => {
-    currentDate.value = startOfWeek(subWeeks(currentDate.value, 1), { weekStartsOn: 1 });
+    currentDate.value = startOfWeek(subWeeks(currentDate.value, 1), {weekStartsOn: 1});
     refreshData();
 };
 
 const nextWeek = () => {
-    currentDate.value = startOfWeek(addWeeks(currentDate.value, 1), { weekStartsOn: 1 });
+    currentDate.value = startOfWeek(addWeeks(currentDate.value, 1), {weekStartsOn: 1});
     refreshData();
 };
 
+const subscribe = () => {
+    console.log('Subscribed', form.value);
+
+    axios.post(route('api.v1.subscriptions.store'), {
+        ...form.value,
+        pair: currencyPair.value.value,
+    }).then(response => {
+        console.log(response.data);
+    }).catch(error => {
+        if(error.response.status === 422) {
+            form.value.errors = error.response.data.errors;
+        }
+    });
+}
 </script>
 
 <template>
@@ -108,7 +138,8 @@ const nextWeek = () => {
                                     <span class="pi pi-arrow-left"></span>
                                     Previous
                                 </Button>
-                                <Button :disabled="isNextDisabled" class="w-32" @click="isDayView ? nextDay() : nextWeek()">
+                                <Button :disabled="isNextDisabled" class="w-32"
+                                        @click="isDayView ? nextDay() : nextWeek()">
                                     Next
                                     <span class="pi pi-arrow-right"></span>
                                 </Button>
@@ -117,6 +148,10 @@ const nextWeek = () => {
                                 </div>
                             </div>
                             <div class="flex gap-x-2">
+                                <div class="size-8 mt-3" @click="showSubscribeModal = !showSubscribeModal">
+                                    <span class="pi pi-bell hover:cursor-pointer"></span>
+                                </div>
+
                                 <SelectButton v-model="currencyPair" optionLabel="label" dataKey="value"
                                               @value-change="onPairChange"
                                               :options="pairs.data"/>
@@ -126,7 +161,46 @@ const nextWeek = () => {
                             </div>
                         </div>
 
-                        <LineChart class="mt-5"  :key="data" :labels="labels" :data="data"/>
+                        <LineChart v-if="data.length > 0" class="mt-5" :key="data" :labels="labels" :data="data"/>
+                        <div v-else class="text-center mt-5 text-gray-600"> There is no data found for this date</div>
+
+                        <div class="mt-10 w-1/2">
+                            <span
+                                class="text-surface-500 dark:text-surface-400 block mb-8">Subscribe For Notification</span>
+                            <div class="flex items-center gap-4 ">
+                                <label for="email" class="font-semibold w-24">Email</label>
+                                <InputText id="email" v-model="form.email" class="flex-auto" autocomplete="off"/>
+                            </div>
+
+                            <InputError v-for="error in form.errors?.email" :message="error"></InputError>
+
+                            <div class="flex items-center gap-4 mt-4">
+                                <div class="flex items-center gap-4 mb-4">
+                                    <label for="price" class="font-semibold w-24">Price Limit</label>
+                                    <InputText v-model="form.price" id="price" class="flex-auto" autocomplete="off"/>
+                                </div>
+                                <InputError v-for="error in form.errors?.price" :message="error"></InputError>
+
+                                <div class="flex items-center gap-4 mb-4">
+                                    <label for="percentage" class="font-semibold w-24">Percentage</label>
+                                    <InputNumber v-model="form.percentage" id="percentage" class="flex-auto" autocomplete="off" :min="0"
+                                                 :max="100"/>
+                                </div>
+                                <InputError v-for="error in form.errors?.percentage" :message="error"></InputError>
+
+                            </div>
+
+                            <div class="flex items-center gap-4 mb-8">
+                                <label for="period" class="font-semibold w-24">Period</label>
+                                <Select v-model="form.period" class="ml-5 w-full" :options="timePeriods.data" optionLabel="label"
+                                        dataKey="value"></Select>
+                            </div>
+                            <InputError v-for="error in form.errors?.period" :message="error"></InputError>
+
+                            <div class="flex justify-end gap-2">
+                                <Button type="button" label="Subscribe" @click="subscribe"></Button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

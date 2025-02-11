@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\BitFinex\GetHistoryData;
 use App\Enums\CurrencyPair;
+use App\Enums\TimePeriod;
 use App\Enums\ViewInterval;
 use App\Http\Requests\DashboardRequest;
 use App\Http\Resources\EnumResource;
@@ -27,6 +28,7 @@ class DashboardController extends Controller
                 ],
                 'pairs' => EnumResource::collection(CurrencyPair::cases()),
                 'intervals' =>  EnumResource::collection(ViewInterval::cases()),
+                'timePeriods' => EnumResource::collection(TimePeriod::cases()),
             ]);
     }
 }
