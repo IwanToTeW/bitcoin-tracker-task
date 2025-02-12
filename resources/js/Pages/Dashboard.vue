@@ -8,7 +8,16 @@ import InputText from 'primevue/inputtext';
 import InputNumber from 'primevue/inputnumber';
 import {ref, defineProps, onBeforeMount, onMounted, computed} from "vue";
 import LineChart from "@/Components/LineChart.vue";
-import {format, addDays, subDays, addWeeks, subWeeks, startOfWeek, isAfter, isToday} from "date-fns";
+import {
+    format,
+    addDays,
+    subDays,
+    addWeeks,
+    subWeeks,
+    startOfWeek,
+    isAfter,
+    isToday, endOfWeek,
+} from "date-fns";
 import InputError from "@/Components/InputError.vue";
 
 const {data, queryParams, pairs, intervals, timePeriods} = defineProps({
@@ -52,8 +61,7 @@ const today = startOfWeek(new Date(), {weekStartsOn: 1});
 
 const isDayView = computed(() => view.value?.value === 'day');
 const isNextDisabled = computed(() => isAfter(currentDate.value, today) || isToday(currentDate.value));
-
-const currentDate = ref(isDayView ? new Date() : startOfWeek(new Date(), {weekStartsOn: 1}));
+const currentDate = ref(isDayView ? new Date() : today);
 
 onBeforeMount(() => {
     currencyPair.value = pairs.data.find(pair => pair.value === queryParams.pair) ?? pairs.data[0];
@@ -100,7 +108,6 @@ const nextWeek = () => {
 };
 
 const subscribe = () => {
-    console.log('Subscribed', form.value);
 
     axios.post(route('api.v1.subscriptions.store'), {
         ...form.value,
@@ -144,7 +151,7 @@ const subscribe = () => {
                                     <span class="pi pi-arrow-right"></span>
                                 </Button>
 
-                                <div v-text="format(currentDate, 'dd/MM/yyyy')" class="text-gray-700 ml-4 mt-2">
+                                <div v-text="format(currentDate,'dd/MM/yy')" class="text-gray-700 ml-4 mt-2">
                                 </div>
                             </div>
                             <div class="flex gap-x-2">

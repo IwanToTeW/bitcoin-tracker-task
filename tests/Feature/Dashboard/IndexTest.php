@@ -28,7 +28,7 @@ it('can see chart for a week', function (string $pair) {
         ->assertInertia(function (Assert $page) {
             $page->component('Dashboard')
                 ->has('labels')
-                ->has('data', 7)
+                ->has('data', 8)
                 ->has('queryParams')
                 ->has('pairs.data', collect(CurrencyPair::cases())->count())
                 ->has('intervals.data', collect(ViewInterval::cases())->count());
@@ -41,7 +41,7 @@ it('returns today if future date is provided for interval: ', function (string $
         ->assertInertia(function (Assert $page) use ($interval) {
             $page->component('Dashboard')
                 ->has('labels')
-                ->has('data', $interval === 'day' ? 24 : 7)
+                ->has('data', $interval === 'day' ? 24 : 8)
                 ->has('queryParams', function (Assert $page) use($interval) {
                     $page->where('interval', $interval)
                         ->where('date', Carbon::now()->format('Y-m-d'))
