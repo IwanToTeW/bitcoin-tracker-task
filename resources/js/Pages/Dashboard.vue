@@ -108,7 +108,7 @@ const subscribe = () => {
     }).then(response => {
         console.log(response.data);
     }).catch(error => {
-        if(error.response.status === 422) {
+        if (error.response.status === 422) {
             form.value.errors = error.response.data.errors;
         }
     });
@@ -169,30 +169,41 @@ const subscribe = () => {
                                 class="text-surface-500 dark:text-surface-400 block mb-8">Subscribe For Notification</span>
                             <div class="flex items-center gap-4 ">
                                 <label for="email" class="font-semibold w-24">Email</label>
-                                <InputText id="email" v-model="form.email" class="flex-auto" autocomplete="off"/>
+                                <div>
+                                    <InputText id="email" v-model="form.email" class="flex-auto" autocomplete="off"/>
+                                    <InputError v-for="error in form.errors?.email" :message="error"></InputError>
+                                </div>
                             </div>
 
-                            <InputError v-for="error in form.errors?.email" :message="error"></InputError>
 
                             <div class="flex items-center gap-4 mt-4">
                                 <div class="flex items-center gap-4 mb-4">
                                     <label for="price" class="font-semibold w-24">Price Limit</label>
-                                    <InputText v-model="form.price" id="price" class="flex-auto" autocomplete="off"/>
+                                    <div>
+                                        <InputText v-model="form.price" id="price" class="flex-auto"
+                                                   autocomplete="off"/>
+                                        <InputError v-for="error in form.errors?.price" :message="error"></InputError>
+                                    </div>
                                 </div>
-                                <InputError v-for="error in form.errors?.price" :message="error"></InputError>
 
                                 <div class="flex items-center gap-4 mb-4">
                                     <label for="percentage" class="font-semibold w-24">Percentage</label>
-                                    <InputNumber v-model="form.percentage" id="percentage" class="flex-auto" autocomplete="off" :min="0"
-                                                 :max="100"/>
+                                    <div>
+
+                                        <InputNumber v-model="form.percentage" id="percentage" class="flex-auto"
+                                                     autocomplete="off" :min="0"
+                                                     :max="100"/>
+                                        <InputError v-for="error in form.errors?.percentage"
+                                                    :message="error"></InputError>
+                                    </div>
                                 </div>
-                                <InputError v-for="error in form.errors?.percentage" :message="error"></InputError>
 
                             </div>
 
                             <div class="flex items-center gap-4 mb-8">
                                 <label for="period" class="font-semibold w-24">Period</label>
-                                <Select v-model="form.period" class="ml-5 w-full" :options="timePeriods.data" optionLabel="label"
+                                <Select v-model="form.period" class="ml-5 w-full" :options="timePeriods.data"
+                                        optionLabel="label"
                                         option-value="value"></Select>
                             </div>
                             <InputError v-for="error in form.errors?.period" :message="error"></InputError>

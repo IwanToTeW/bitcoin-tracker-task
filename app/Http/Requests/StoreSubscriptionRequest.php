@@ -21,7 +21,7 @@ class StoreSubscriptionRequest extends FormRequest
         $currencyPairValues = array_map(fn($case) => $case->value, CurrencyPair::cases());
 
         return [
-            'pair' => ['nullable', 'string', Rule::in($currencyPairValues)],
+            'pair' => ['required', 'string', Rule::in($currencyPairValues)],
             'email' => [
                 'required',
                 'string',
