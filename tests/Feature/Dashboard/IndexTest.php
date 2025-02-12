@@ -35,6 +35,19 @@ it('can see chart for a week', function (string $pair) {
         });
 })->with(collect(CurrencyPair::cases())->pluck('value')->toArray());
 
+it('can see chart for a week (7 days if finished week)', function (string $pair) {
+    $this->get('/dashboard?interval=week&pair=' . $pair.'&date=' . Carbon::now()->subWeeks(2)->format('Y-m-d'))
+        ->assertStatus(200)
+        ->assertInertia(function (Assert $page) {
+            $page->component('Dashboard')
+                ->has('labels')
+                ->has('data', 7)
+                ->has('queryParams')
+                ->has('pairs.data', collect(CurrencyPair::cases())->count())
+                ->has('intervals.data', collect(ViewInterval::cases())->count());
+        });
+})->with(collect(CurrencyPair::cases())->pluck('value')->toArray());
+
 it('returns today if future date is provided for interval: ', function (string $interval) {
     $this->get('/dashboard?interval='.$interval.'&date=' . Carbon::now()->addDay()->format('Y-m-d'))
         ->assertStatus(200)
