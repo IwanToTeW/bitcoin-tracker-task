@@ -30,7 +30,7 @@ class StoreSubscriptionRequest extends FormRequest
                 'max:255',
             ],
             'price' => ['required', 'numeric', 'min:0'],
-            'percentage' => [ 'required_if_declined:period', 'min:1', 'numeric'],
+            'percentage' => ['nullable', 'numeric'],
             'period' => [new IsPeriodRequired, 'numeric', 'min:0'],
         ];
     }

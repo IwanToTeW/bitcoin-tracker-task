@@ -1,13 +1,13 @@
 <?php
 
 use App\Actions\BitFinex\GetHistoryData;
-use App\Actions\Subscriptions\StoreSubscriptionAction;
+use App\Actions\Subscriptions\StoreSubscription;
 use App\Enums\CurrencyPair;
 use App\Enums\ViewInterval;
 use Illuminate\Support\Carbon;
 
 test('it can create a subscription with valid data', function () {
-    $action = new StoreSubscriptionAction();
+    $action = new StoreSubscription();
     $data = [
         'email' => 'test@test.com',
         'pair' => CurrencyPair::BTC_USD->value,
@@ -22,7 +22,7 @@ test('it can create a subscription with valid data', function () {
 });
 
 test('it can not create a subscription with: ', function (array $data) {
-    $action = new StoreSubscriptionAction();
+    $action = new StoreSubscription();
     $result = $action->execute($data);
     $this->assertFalse($result);
 })->with([

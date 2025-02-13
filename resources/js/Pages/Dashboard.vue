@@ -53,7 +53,7 @@ const view = ref('');
 const form = ref({
     email: '',
     price: '',
-    percentage: '',
+    percentage: 0,
     period: 0,
     errors: {},
 });

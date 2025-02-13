@@ -66,15 +66,6 @@ it('can not see validation error when', function (array $dataSet) {
         ],
         'errors' => ['pair']
     ],
-    'missing percentage when period is selected' => fn() => [
-        'data' => [
-            'email' => 'test@test.com',
-            'price' => 10000,
-            'period' => TimePeriod::Hours6->value,
-            'percentage' => '',
-        ],
-        'errors' => ['percentage']
-    ],
     'missing period when percentage is selected' => fn() => [
         'data' => [
             'email' => 'test@test.com',
