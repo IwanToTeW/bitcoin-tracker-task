@@ -6,7 +6,7 @@ use App\Enums\TimePeriod;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 
-class IsPercentageRequired implements ValidationRule
+class IsPercentageValid implements ValidationRule
 {
     /**
      * Run the validation rule.
@@ -17,9 +17,9 @@ class IsPercentageRequired implements ValidationRule
     {
         $period = request()->input('period');
 
-        if (!empty($period)) {
+        if (empty($value)) {
             collect(TimePeriod::periodsRequirePercentage())->contains($period)
-                ? $fail('The percentage field is required.')
+                ? $fail('The percentage field must be present.')
                 : null;
         }
 

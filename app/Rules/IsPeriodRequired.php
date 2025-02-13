@@ -18,7 +18,7 @@ class IsPeriodRequired implements ValidationRule
         $percentage = request()->input('percentage');
         if (!empty($percentage)) {
             collect(TimePeriod::periodsRequirePercentage())->doesntContain($value)
-                ? $fail('The period field is required.')
+                ? $fail('The period field is required when percentage is present.')
                 : null;
         }
     }

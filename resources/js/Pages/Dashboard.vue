@@ -4,10 +4,13 @@ import {Head, router} from '@inertiajs/vue3';
 import Button from "primevue/button"
 import SelectButton from 'primevue/selectbutton';
 import Select from 'primevue/select';
+import Toast from 'primevue/toast';
 import InputText from 'primevue/inputtext';
 import InputNumber from 'primevue/inputnumber';
 import {ref, defineProps, onBeforeMount, onMounted, computed} from "vue";
 import LineChart from "@/Components/LineChart.vue";
+import {useToast} from 'primevue/usetoast';
+
 import {
     format,
     addDays,
@@ -46,6 +49,7 @@ const {data, queryParams, pairs, intervals, timePeriods} = defineProps({
         required: true,
     },
 })
+const toast = useToast();
 
 const currencyPair = ref('');
 const showSubscribeModal = ref(false);
@@ -57,11 +61,10 @@ const form = ref({
     period: 0,
     errors: {},
 });
-const today = startOfWeek(new Date(), {weekStartsOn: 1});
+const today = new Date();
 
 const isDayView = computed(() => view.value?.value === 'day');
-const isNextDisabled = computed(() => isAfter(currentDate.value, today) || isToday(currentDate.value));
-const currentDate = ref(isDayView ? new Date() : today);
+const currentDate = ref(isDayView ? new Date(queryParams.date) : today);
 
 onBeforeMount(() => {
     currencyPair.value = pairs.data.find(pair => pair.value === queryParams.pair) ?? pairs.data[0];
@@ -107,14 +110,28 @@ const nextWeek = () => {
     refreshData();
 };
 
-const subscribe = () => {
+const isNextDisabled = () => {
 
+    if (isDayView.value) {
+        return isToday(currentDate.value) || isAfter(currentDate.value, today);
+    }
+
+    return today <= endOfWeek(currentDate.value, {weekStartsOn: 1});
+}
+
+const subscribe = () => {
     axios.post(route('api.v1.subscriptions.store'), {
         ...form.value,
         pair: currencyPair.value.value,
     }).then(response => {
-        console.log(response.data);
+        if (response.data.success) {
+            toast.add({severity: 'success', summary: 'Success', detail: 'You have successfully subscribed', life: 3000})
+            form.value.errors = [];
+        } else {
+            toast.add({severity: 'error', summary: 'Error', detail: 'Something went wrong', life: 3000})
+        }
     }).catch(error => {
+        toast.add({severity: 'error', summary: 'Error', detail: 'Something went wrong', life: 3000})
         if (error.response.status === 422) {
             form.value.errors = error.response.data.errors;
         }
@@ -125,6 +142,7 @@ const subscribe = () => {
 <template>
     <Head title="Dashboard"/>
     <AuthenticatedLayout>
+        <Toast/>
         <template #header>
             <h2
                 class="text-xl font-semibold leading-tight text-gray-800"
@@ -135,9 +153,7 @@ const subscribe = () => {
 
         <div class="py-12">
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                <div
-                    class="overflow-hidden bg-white shadow-sm sm:rounded-lg"
-                >
+                <div class="overflow-hidden bg-white shadow-sm sm:rounded-lg">
                     <div class="p-6 text-gray-900">
                         <div class="flex justify-between">
                             <div class="flex gap-x-2">
@@ -145,7 +161,7 @@ const subscribe = () => {
                                     <span class="pi pi-arrow-left"></span>
                                     Previous
                                 </Button>
-                                <Button :disabled="isNextDisabled" class="w-32"
+                                <Button :disabled="isNextDisabled()" class="w-32"
                                         @click="isDayView ? nextDay() : nextWeek()">
                                     Next
                                     <span class="pi pi-arrow-right"></span>
@@ -174,7 +190,7 @@ const subscribe = () => {
                         <div class="mt-10 w-1/2">
                             <span
                                 class="text-surface-500 dark:text-surface-400 block mb-8">Subscribe For Notification</span>
-                            <div class="flex items-center gap-4 ">
+                            <div class="flex items-center gap-4">
                                 <label for="email" class="font-semibold w-24">Email</label>
                                 <div>
                                     <InputText id="email" v-model="form.email" class="flex-auto" autocomplete="off"/>
@@ -182,29 +198,30 @@ const subscribe = () => {
                                 </div>
                             </div>
 
-
                             <div class="flex items-center gap-4 mt-4">
                                 <div class="flex items-center gap-4 mb-4">
                                     <label for="price" class="font-semibold w-24">Price Limit</label>
                                     <div>
                                         <InputText v-model="form.price" id="price" class="flex-auto"
                                                    autocomplete="off"/>
-                                        <InputError v-for="error in form.errors?.price" :message="error"></InputError>
                                     </div>
                                 </div>
 
                                 <div class="flex items-center gap-4 mb-4">
                                     <label for="percentage" class="font-semibold w-24">Percentage</label>
                                     <div>
-
                                         <InputNumber v-model="form.percentage" id="percentage" class="flex-auto"
                                                      autocomplete="off" :min="0"
                                                      :max="100"/>
-                                        <InputError v-for="error in form.errors?.percentage"
-                                                    :message="error"></InputError>
                                     </div>
                                 </div>
+                            </div>
 
+                            <div class="flex justify-between gap-4 mb-4">
+                                <InputError v-for="error in form.errors?.price" :message="error"></InputError>
+
+                                <InputError v-for="error in form.errors?.percentage"
+                                            :message="error"></InputError>
                             </div>
 
                             <div class="flex items-center gap-4 mb-8">

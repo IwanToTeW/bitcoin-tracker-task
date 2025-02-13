@@ -13,6 +13,7 @@ test('it can create a subscription with valid data', function () {
         'pair' => CurrencyPair::BTC_USD->value,
         'price' => 10000,
         'period' => 0,
+        'percentage' => 0,
     ];
 
     $this->assertDatabaseMissing('subscriptions', $data);
