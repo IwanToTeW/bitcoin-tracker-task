@@ -119,6 +119,14 @@ const isNextDisabled = () => {
     return today <= endOfWeek(currentDate.value, {weekStartsOn: 1});
 }
 
+const getLabel = () => {
+    if (isDayView.value) {
+        return format(currentDate.value,'dd/MM/yy')
+    }
+
+    return `${format(startOfWeek(currentDate.value, {weekStartsOn: 1}), 'dd/MM/yy')} - ${format(endOfWeek(currentDate.value, {weekStartsOn: 1}), 'dd/MM/yy')}`
+
+}
 const subscribe = () => {
     axios.post(route('api.v1.subscriptions.store'), {
         ...form.value,
@@ -167,7 +175,7 @@ const subscribe = () => {
                                     <span class="pi pi-arrow-right"></span>
                                 </Button>
 
-                                <div v-text="format(currentDate,'dd/MM/yy')" class="text-gray-700 ml-4 mt-2">
+                                <div v-text="getLabel()" class="text-gray-700 ml-4 mt-2">
                                 </div>
                             </div>
                             <div class="flex gap-x-2">

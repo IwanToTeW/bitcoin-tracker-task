@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import { Chart, LineController, LineElement, PointElement, LinearScale, Title, Tooltip, CategoryScale } from 'chart.js';
+import { Chart, LineController, LineElement, PointElement, LinearScale, Title, Tooltip, CategoryScale, Filler } from 'chart.js';
 
 const {labels, data} = defineProps({
     labels: {
@@ -13,7 +13,7 @@ const {labels, data} = defineProps({
     },
 });
 // Register required components
-Chart.register(LineController, LineElement, PointElement, LinearScale, Title, Tooltip, CategoryScale);
+Chart.register(LineController, LineElement, PointElement, LinearScale, Title, Tooltip, CategoryScale, Filler);
 
 const chartRef = ref(null);
 let chartInstance = null;
