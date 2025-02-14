@@ -24,6 +24,9 @@ To run the tests:
 - You should then be redirected to /dashboard
 - You should be able to browse through the historic data of BTC price for USD/EURO. The data supports both daily and weekly charts.
 - If you want to subscribe for a price you should fill in the form below the chart.
-- If a period is not specified you are subscribing to a price and you will be notified when the BTC price exceeds the target.
+- If a period is not specified you are subscribing to a price, and you will be notified when the BTC price exceeds the target.
 - If you specify a period then you have to present a target percentage with the price. This will then notify you when the price exceeds the target percentage for the specified period.
 After the period is over the subscription is automatically marked as expired.
+
+- The notifications are sent via an automated scheduled job that runs every first minute of the hour. This is done like this as the new data comes in every hour.
+- The job will take care of sending the notifications to the users that have subscribed for a price update and marking the subscriptions as expired if the period has passed.
