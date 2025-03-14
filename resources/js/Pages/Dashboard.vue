@@ -19,7 +19,7 @@ import {
     subWeeks,
     startOfWeek,
     isAfter,
-    isToday, endOfWeek,
+    isToday, endOfWeek, isSameDay,
 } from "date-fns";
 import InputError from "@/Components/InputError.vue";
 
@@ -54,13 +54,15 @@ const toast = useToast();
 const currencyPair = ref('');
 const showSubscribeModal = ref(false);
 const view = ref('');
-const form = ref({
+const defaultForm = {
     email: '',
     price: '',
     percentage: 0,
     period: 0,
     errors: {},
-});
+}
+const form = ref(defaultForm);
+
 const today = new Date();
 
 const isDayView = computed(() => view.value?.value === 'day');
@@ -124,7 +126,15 @@ const getLabel = () => {
         return format(currentDate.value,'dd/MM/yy')
     }
 
-    return `${format(startOfWeek(currentDate.value, {weekStartsOn: 1}), 'dd/MM/yy')} - ${format(endOfWeek(currentDate.value, {weekStartsOn: 1}), 'dd/MM/yy')}`
+    const weekStart = startOfWeek(currentDate.value, {weekStartsOn: 1});
+    const weekEnd = endOfWeek(currentDate.value, {weekStartsOn: 1});
+
+    const hasWeekEnded = isAfter(new Date(), weekEnd);
+
+    if(hasWeekEnded) {
+        return `${format(weekStart, 'dd/MM/yy')} - ${format(weekEnd, 'dd/MM/yy')}`
+    }
+    return `${format(subWeeks(new Date(), 1), 'dd/MM/yy')} - ${format(new Date(),'dd/MM/yy')}`
 
 }
 const subscribe = () => {
@@ -135,6 +145,7 @@ const subscribe = () => {
         if (response.data.success) {
             toast.add({severity: 'success', summary: 'Success', detail: 'You have successfully subscribed', life: 3000})
             form.value.errors = [];
+            form.value = defaultForm;
         } else {
             toast.add({severity: 'error', summary: 'Error', detail: 'Something went wrong', life: 3000})
         }
