@@ -238,7 +238,8 @@ const subscribe = () => {
 
                             <div class="flex justify-between gap-4 mb-4">
                                 <InputError v-for="error in form.errors?.price" :message="error"></InputError>
-
+                            </div>
+                            <div class="flex justify-end">
                                 <InputError v-for="error in form.errors?.percentage"
                                             :message="error"></InputError>
                             </div>
